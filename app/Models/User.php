@@ -29,4 +29,22 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Relación 1:N - Un usuario crea muchos proyectos
+     */
+    public function createdProjects()
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    /**
+     * Relación N:N - Un usuario participa en muchos proyectos
+     */
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class)
+                    ->withPivot('role', 'contribution_hours')
+                    ->withTimestamps();
+    }
 }
