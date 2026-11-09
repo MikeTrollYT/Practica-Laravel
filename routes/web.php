@@ -19,6 +19,11 @@ Route::middleware('auth')->group(function () {
 
     // CRUD completo de proyectos protegido por autenticación
     Route::resource('projects', ProjectController::class);
+
+    // Gestión de participantes en proyectos (relación N:N)
+    Route::post('projects/{project}/participants', [ProjectController::class, 'addParticipant'])->name('projects.participants.add');
+    Route::patch('projects/{project}/participants/{user}', [ProjectController::class, 'updateParticipantHours'])->name('projects.participants.update');
+    Route::delete('projects/{project}/participants/{user}', [ProjectController::class, 'removeParticipant'])->name('projects.participants.remove');
 });
 
 require __DIR__.'/auth.php';

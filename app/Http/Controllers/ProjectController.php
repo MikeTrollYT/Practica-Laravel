@@ -58,9 +58,19 @@ class ProjectController extends Controller
     public function show(string $id)
     {
         // findOrFail devuelve 404 si no existe
-        $project = Project::with('creator')->findOrFail($id);
+        // Carga el creador y los participantes (relación N:N con los campos de la tabla pivote)
+        $project = Project::with(['creator', 'users'])->findOrFail($id);
 
-        return view('projects.show', compact('project'));
+        // Si el usuario actual es el propietario, obtiene la lista de usuarios disponibles para añadir
+        $availableUsers = null;
+        if ($project->user_id === Auth::id()) {
+            // Usuarios que NO participan ya en el proyecto y que NO son el propietario
+            $availableUsers = \App\Models\User::whereNotIn('id', $project->users->pluck('id'))
+                                              ->where('id', '!=', $project->user_id)
+                                              ->get();
+        }
+
+        return view('projects.show', compact('project', 'availableUsers'));
     }
 
     /**
@@ -127,5 +137,78 @@ class ProjectController extends Controller
         $project->delete();
 
         return redirect()->route('projects.index')->with('success', 'Proyecto eliminado correctamente');
+    }
+
+    /**
+     * Añade un participante al proyecto (relación N:N con attach)
+     * Solo el propietario puede añadir participantes
+     */
+    public function addParticipant(Request $request, string $id)
+    {
+        $project = Project::findOrFail($id);
+
+        // Comprueba que el usuario actual es el creador
+        if ($project->user_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para añadir participantes a este proyecto');
+        }
+
+        // Validación: user_id y role son obligatorios
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'role' => 'required|max:50',
+        ]);
+
+        // Añade el participante con attach() - los campos adicionales de la tabla pivote
+        $project->users()->attach($request->user_id, [
+            'role' => $request->role,
+            'contribution_hours' => 0, // Inicia en 0 horas
+        ]);
+
+        return redirect()->route('projects.show', $project->id)->with('success', 'Participante añadido correctamente');
+    }
+
+    /**
+     * Actualiza las horas de contribución de un participante (updateExistingPivot)
+     * Solo el propietario puede actualizar
+     */
+    public function updateParticipantHours(Request $request, string $projectId, string $userId)
+    {
+        $project = Project::findOrFail($projectId);
+
+        // Comprueba que el usuario actual es el creador
+        if ($project->user_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para actualizar participantes de este proyecto');
+        }
+
+        // Validación: horas deben ser numéricas y no negativas
+        $request->validate([
+            'contribution_hours' => 'required|numeric|min:0',
+        ]);
+
+        // Actualiza solo el campo contribution_hours de la tabla pivote
+        $project->users()->updateExistingPivot($userId, [
+            'contribution_hours' => $request->contribution_hours,
+        ]);
+
+        return redirect()->route('projects.show', $project->id)->with('success', 'Horas actualizadas correctamente');
+    }
+
+    /**
+     * Elimina un participante del proyecto (detach)
+     * Solo el propietario puede quitar participantes
+     */
+    public function removeParticipant(string $projectId, string $userId)
+    {
+        $project = Project::findOrFail($projectId);
+
+        // Comprueba que el usuario actual es el creador
+        if ($project->user_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para quitar participantes de este proyecto');
+        }
+
+        // Elimina la relación con detach()
+        $project->users()->detach($userId);
+
+        return redirect()->route('projects.show', $project->id)->with('success', 'Participante eliminado correctamente');
     }
 }
