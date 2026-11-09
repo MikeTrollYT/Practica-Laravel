@@ -1,3 +1,115 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ===== Estilos para las vistas de proyectos ===== */
+
+@layer components {
+
+    /* ----- Botones ----- */
+    .btn,
+    .btn-secondary,
+    .btn-danger,
+    .btn-warning,
+    .btn-success {
+        @apply inline-block rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm
+               transition-colors duration-150 cursor-pointer
+               focus:outline-none focus:ring-2 focus:ring-offset-2;
+    }
+
+    .btn           { @apply bg-blue-600 hover:bg-blue-700 focus:ring-blue-500; }
+    .btn-secondary { @apply bg-gray-600 hover:bg-gray-700 focus:ring-gray-500; }
+    .btn-danger    { @apply bg-red-600 hover:bg-red-700 focus:ring-red-500; }
+    .btn-warning   { @apply bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-400; }
+    .btn-success   { @apply bg-green-600 hover:bg-green-700 focus:ring-green-500; }
+
+    .btn-sm {
+        @apply px-2 py-1 text-xs;
+    }
+
+    /* ----- Mensajes flash ----- */
+    .alert-success {
+        @apply mb-4 rounded-md border border-green-300 bg-green-50 px-4 py-3 text-green-800;
+    }
+
+    .alert-error {
+        @apply mb-4 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-red-800;
+    }
+
+    /* ----- Formularios ----- */
+    .form-group {
+        @apply mb-4;
+    }
+
+    .form-label {
+        @apply mb-1 block text-sm font-medium text-gray-700;
+    }
+
+    /* Sirve para input, select y textarea */
+    .form-input,
+    .form-select,
+    .form-textarea {
+        @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2
+               text-sm text-gray-900 placeholder-gray-400 shadow-sm
+               focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500;
+    }
+
+    .form-textarea {
+        @apply min-h-[120px];
+    }
+
+    .form-error {
+        @apply mt-1 text-sm text-red-600;
+    }
+
+    /* ----- Tablas ----- */
+    .table {
+        @apply min-w-full divide-y divide-gray-200 overflow-hidden rounded-md border border-gray-200;
+    }
+
+    .table thead {
+        @apply bg-gray-50;
+    }
+
+    .table th {
+        @apply px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500;
+    }
+
+    .table td {
+        @apply px-4 py-3 text-sm text-gray-900;
+    }
+
+    .table tbody {
+        @apply divide-y divide-gray-200 bg-white;
+    }
+
+    /* ----- Proyectos ----- */
+    .page-title {
+        @apply mb-4 text-2xl font-bold text-gray-900;
+    }
+
+    .project-card {
+        @apply rounded-md border border-gray-200 bg-white p-4 shadow-sm mb-4;
+    }
+
+    .project-title {
+        @apply text-lg font-semibold text-blue-600 hover:underline;
+    }
+
+    .project-meta {
+        @apply mt-2 text-sm text-gray-500;
+    }
+
+    .project-actions {
+        @apply mt-4 flex flex-wrap items-center gap-2;
+    }
+
+    /* ----- Participantes ----- */
+    .participants-section {
+        @apply mb-6 border-t border-gray-200 pt-6;
+    }
+
+    .participants-form {
+        @apply rounded-md border border-gray-200 bg-gray-50 p-4;
+    }
+}
