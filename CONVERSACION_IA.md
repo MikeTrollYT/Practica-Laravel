@@ -815,3 +815,59 @@ Tu proyecto implementa un **sistema completo de gestión de proyectos** con:
 El proyecto sigue fielmente lo enseñado en el curso, con una implementación sólida del patrón MVC, relaciones Eloquent bien estructuradas y un sistema completo de autenticación y CRUD.
 
 **He generado un informe detallado** en `INFORME_PRUEBAS.md` que puedes consultar para más detalles técnicos.
+
+=================== SESIÓN: 6e121ec6-3062-4e4a-851e-625450c080ab.jsonl ===================
+USER: En mi proyecto de Laravel 13 (PHP 8.5, MySQL), cuando creo una tarea y en el campo “fecha de vencimiento” (due_date) escribo un año con más de 4 cifras (por ejemplo 79989-08-08), me da un error 500: SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect date value al hacer el Project::create() en ProjectController@store.
+
+Mi validación actual es:'due_date' => 'required|date',
+'status' => 'required|max:50',
+
+Quiero que no se pueda escribir un año de más de 4 cifras. ¿Es posible limitar el campo del formulario (input type="date") para que solo acepte años de 4 cifras? Además, quiero que el servidor también lo valide, para que no llegue ese valor a la base de datos aunque alguien se salte el formulario.
+
+ASSISTANT: Te ayudo a resolver esto en dos capas: validación en el cliente (HTML) y validación en el servidor (Laravel).
+
+Primero, déjame ver tu formulario y la validación actual en el controlador.
+
+ASSISTANT: Perfecto, veo el problema. Te explico la solución en dos capas:
+
+## 1. Validación en el cliente (HTML5)
+
+El `input type="date"` de HTML5 no tiene un atributo nativo para limitar el año a 4 cifras, pero podemos usar los atributos `min` y `max` para establecer un rango razonable de fechas.
+
+## 2. Validación en el servidor (Laravel)
+
+Laravel tiene reglas de validación perfectas para esto: `after_or_equal` y `before_or_equal` que aseguran que la fecha esté en un rango válido.
+
+Voy a hacer los cambios:
+
+ASSISTANT: Ahora voy a actualizar la validación del servidor en el controlador para que rechace fechas fuera del rango válido de MySQL:
+
+ASSISTANT: Perfecto. También necesito actualizar el formulario de edición para que tenga la misma protección:
+
+ASSISTANT: Listo, he aplicado la solución en dos capas:
+
+## ✅ Cambios realizados
+
+### 1. **Validación en el cliente (HTML)**
+He añadido los atributos `min="1900-01-01"` y `max="9999-12-31"` a los campos `<input type="date">` en:
+- `resources/views/projects/create.blade.php`
+- `resources/views/projects/edit.blade.php`
+
+Esto hace que el navegador no permita escribir ni seleccionar fechas fuera de ese rango. Si alguien intenta escribir `79989-08-08`, el navegador lo bloqueará automáticamente.
+
+### 2. **Validación en el servidor (Laravel)**
+He actualizado la regla de validación en `ProjectController` (en los métodos `store()` y `update()`):
+
+```php
+'due_date' => 'required|date|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
+```
+
+Esto asegura que **incluso si alguien manipula el formulario desde el inspector del navegador** o envía una petición directa con una herramienta como Postman, Laravel rechazará la fecha con un error de validación **antes** de intentar guardarla en MySQL.
+
+## 🔍 Por qué este rango
+
+- **MySQL `DATE`** admite fechas desde `1000-01-01` hasta `9999-12-31`
+- He usado `1900-01-01` como mínimo porque fechas anteriores rara vez tienen sentido en un proyecto moderno
+- `9999-12-31` es el máximo que soporta MySQL con años de 4 cifras
+
+Ahora ya no te saldrá el error 500. Si intentas crear un proyecto con un año de 5 cifras, Laravel devolverá un error de validación con un mensaje claro, y el formulario se repoblará con `old('due_date')`.

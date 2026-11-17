@@ -36,7 +36,7 @@ class ProjectController extends Controller
         $request->validate([
             'title' => 'required|max:200',
             'description' => 'required',
-            'due_date' => 'required|date',
+            'due_date' => 'required|date|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
             'status' => 'required|max:50',
         ]);
 
@@ -106,7 +106,7 @@ class ProjectController extends Controller
         $request->validate([
             'title' => 'required|max:200',
             'description' => 'required',
-            'due_date' => 'required|date',
+            'due_date' => 'required|date|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
             'status' => 'required|max:50',
         ]);
 

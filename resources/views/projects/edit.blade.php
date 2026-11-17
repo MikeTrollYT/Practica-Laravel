@@ -34,7 +34,7 @@
                         {{-- Campo: Fecha de vencimiento --}}
                         <div class="form-group">
                             <label for="due_date" class="form-label">Fecha de vencimiento *</label>
-                            <input type="date" name="due_date" id="due_date" value="{{ old('due_date', $project->due_date) }}" required class="form-input">
+                            <input type="date" name="due_date" id="due_date" value="{{ old('due_date', $project->due_date) }}" required min="1900-01-01" max="9999-12-31" class="form-input">
                             @error('due_date')
                                 <span class="form-error">{{ $message }}</span>
                             @enderror
